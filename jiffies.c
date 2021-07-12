@@ -10,8 +10,10 @@
 static struct task_struct *my_thread;
 
 static struct timer_list my_timer;
+
+
 void timer_callback(struct timer_list *timer){
-	printk(KERN_INFO"jiffies\n");
+	printk(KERN_INFO"jiffie value is : %lu\n", jiffies);
 	mod_timer(&my_timer,msecs_to_jiffies(TIMEOUT));
 }
 
@@ -26,7 +28,7 @@ int do_func(void *p){
 MODULE_LICENSE("GPL");
 
 static int test_init(void){
-	printk(KERN_INFO"jiffies\n");
+	printk(KERN_INFO"jiffies : %lu\n", jiffies);
 	
 	my_thread = kthread_run(do_func, NULL, "my thead");
 
