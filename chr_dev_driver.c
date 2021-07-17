@@ -9,6 +9,8 @@
 #include<linux/fs.h>
 
 MODULE_LICENSE("GPL");
+MODULE_AUTHOR("PRIT");
+MODULE_DESCRIPTION("The chr device");
 #define MINOR_NO 0
 #define MEM_SIZE 1024
 
