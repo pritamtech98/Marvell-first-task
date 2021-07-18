@@ -16,11 +16,13 @@ MODULE_DESCRIPTION("The chr device");
 
 dev_t dev=0;
 struct cdev *my_cdev;
-uint8_t *kbuff;
-
+char *kbuff;
 
 static int my_open(struct inode *inode, struct file *f){
   if((kbuff = kmalloc(MEM_SIZE, GFP_KERNEL)) == 0){
+    int i;
+    for(i=0; i< MEM_SIZE; i++)
+      kbuff[i] = '\0';
     printk(KERN_INFO"error generating mem for device\n");
     return -1;
   }else{
@@ -38,15 +40,27 @@ static int my_release(struct inode *inode, struct file *f){
 
 
 static ssize_t my_read(struct file *f, char __user *buf, size_t len, loff_t *offp){
-  copy_to_user(buf, kbuff, MEM_SIZE);
-  printk(KERN_INFO"Data copied to user space \n");
-  return MEM_SIZE;
+  // copy_to_user(buf, kbuff, MEM_SIZE);
+  // printk(KERN_INFO"Data copied to user space \n");
+  // return MEM_SIZE;
+  int nbytes, maxbytes, bytes_to_do;
+  maxbytes = MEM_SIZE - *offp;
+  bytes_to_do = (maxbytes >= len)?len:maxbytes;
+  nbytes = bytes_to_do - copy_to_user(buf, kbuff+*offp, bytes_to_do);
+  *offp += nbytes;
+  printk(KERN_INFO"Data send to applicatiom: %s | nbytes=%d\n", kbuff, nbytes);
+  return nbytes;
 }
 
 static ssize_t my_write(struct file *f, const char __user *buf, size_t len, loff_t *offp){
-  copy_from_user(kbuff, buf, len);
-  printk(KERN_INFO"Data written from user space to kernel space \n");
-  return len;
+  // copy_from_user(kbuff, buf, len);
+  // printk(KERN_INFO"Data written from user space to kernel space \n");
+  // return len;
+  int nbytes;
+  nbytes = len - copy_from_user(kbuff+*offp, buf, len);
+  *offp += nbytes;
+  printk(KERN_INFO"Data rec from applicatiom: %s | nbytes=%d\n", kbuff, nbytes);
+  return nbytes;
 }
 
 struct file_operations my_dev_ops = {
@@ -73,7 +87,7 @@ static int __init chr_dev_init(void){
     printk(KERN_INFO"failed to add the device driver\n");
     return -1;
   }
-
+  printk(KERN_INFO"Dev added success with major no as : {%d} and minor no as : {%d}\n", major_no, minor_no);
   return 0;
 }
 

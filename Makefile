@@ -1,4 +1,5 @@
 obj-m := chr_dev_driver.o
+obj-m += jiffies.o
 
 KDIR := /lib/modules/$(shell uname -r)/build
 PWD  := $(shell pwd)
