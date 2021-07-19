@@ -20,13 +20,13 @@ char *kbuff;
 
 static int my_open(struct inode *inode, struct file *f){
   if((kbuff = kmalloc(MEM_SIZE, GFP_KERNEL)) == 0){
-    int i;
-    for(i=0; i< MEM_SIZE; i++)
-      kbuff[i] = '\0';
     printk(KERN_INFO"error generating mem for device\n");
     return -1;
   }else{
     printk(KERN_INFO"dev opened success\n");
+    int i;
+    for(i=0; i< MEM_SIZE; i++)
+      kbuff[i] = '\0';
     return 0;
   }
 }
